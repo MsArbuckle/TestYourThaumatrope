@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thaumatrope Creator</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { border: 1px solid black; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Make Your Own Thaumatrope</h1>
+    <p>Upload two images to see how they blend when spun.</p>
+    
+    <input type="file" id="image1" accept="image/*">
+    <input type="file" id="image2" accept="image/*">
+    <br><br>
+    <canvas id="thaumatropeCanvas" width="300" height="300"></canvas>
+    <br>
+    <button onclick="spinThaumatrope()">Spin</button>
+    
+    <script>
+        let img1 = new Image();
+        let img2 = new Image();
+        let ctx = document.getElementById("thaumatropeCanvas").getContext("2d");
+        let angle = 0;
+
+        document.getElementById("image1").addEventListener("change", function(event) {
+            img1.src = URL.createObjectURL(event.target.files[0]);
+        });
+
+        document.getElementById("image2").addEventListener("change", function(event) {
+            img2.src = URL.createObjectURL(event.target.files[0]);
+        });
+
+        function drawImage(image, rotation) {
+            ctx.clearRect(0, 0, 300, 300);
+            ctx.save();
+            ctx.translate(150, 150);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.drawImage(image, -100, -100, 200, 200);
+            ctx.restore();
+        }
+
+        function spinThaumatrope() {
+            let frames = [img1, img2];
+            let i = 0;
+            let interval = setInterval(() => {
+                let rotation = (i % 2 === 0) ? 180 : 0;
+                drawImage(frames[i % 2], rotation);
+                i++;
+                if (i > 20) clearInterval(interval);
+            }, 100);
+        }
+    </script>
+</body>
+</html>
