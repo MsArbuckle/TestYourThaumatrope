@@ -19,12 +19,15 @@
     <canvas id="thaumatropeCanvas" width="300" height="300"></canvas>
     <br>
     <button onclick="spinThaumatrope()">Spin</button>
+    <button onclick="downloadGIF()">Download GIF</button>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     <script>
         let img1 = new Image();
         let img2 = new Image();
         let ctx = document.getElementById("thaumatropeCanvas").getContext("2d");
         let angle = 0;
+        let frames = [];
 
         document.getElementById("image1").addEventListener("change", function(event) {
             img1.src = URL.createObjectURL(event.target.files[0]);
@@ -44,15 +47,36 @@
         }
 
         function spinThaumatrope() {
-            let frames = [img1, img2];
             let i = 0;
+            frames = [];
             let interval = setInterval(() => {
                 let rotation = (i % 2 === 0) ? 180 : 0;
-                drawImage(frames[i % 2], rotation);
+                drawImage(i % 2 === 0 ? img1 : img2, rotation);
+                frames.push(ctx.getImageData(0, 0, 300, 300));
                 i++;
                 if (i > 20) clearInterval(interval);
             }, 100);
         }
+
+        function downloadGIF() {
+            let gif = new GIF({ workers: 2, quality: 10 });
+            frames.forEach(frame => {
+                let tempCanvas = document.createElement("canvas");
+                tempCanvas.width = 300;
+                tempCanvas.height = 300;
+                let tempCtx = tempCanvas.getContext("2d");
+                tempCtx.putImageData(frame, 0, 0);
+                gif.addFrame(tempCanvas, { delay: 100 });
+            });
+            gif.on('finished', function(blob) {
+                let link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'thaumatrope.gif';
+                link.click();
+            });
+            gif.render();
+        }
     </script>
 </body>
 </html>
+
